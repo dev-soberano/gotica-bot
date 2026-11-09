@@ -2,3 +2,6 @@
 tmp/
 session/
 serviceAccountKey.json
+src/database/database.json
+src/database/antispam.json
+src/database/grupos/
