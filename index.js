@@ -219,6 +219,33 @@ const connectionOptions = {
 }
 global.conn = makeWASocket(connectionOptions);
 
+// --- [ CÓDIGO DE PAREAMENTO ] ---
+// Pede o código direto (sem depender do evento connection.update, que
+// podia disparar ANTES de os listeners serem registrados, por causa do
+// carregamento dos plugins). Tenta até 3 vezes caso o socket ainda não
+// esteja pronto.
+async function solicitarCodigoPareamento(tentativa = 1) {
+    const c = global.conn
+    if (!usePairingCode || !phoneNumber || !c) return
+    if (c.authState?.creds?.registered) return
+    if (tentativa === 1 && c.pairingCodeRequested) return
+    c.pairingCodeRequested = true
+
+    await new Promise(r => setTimeout(r, 3000))
+    if (c !== global.conn) return // socket foi trocado (reconexão), o novo cuida disso
+    if (c.authState?.creds?.registered) return
+
+    try {
+        let code = await c.requestPairingCode(phoneNumber)
+        code = code?.match(/.{1,4}/g)?.join("-") || code
+        console.log(chalk.bold.white(chalk.bgMagenta(`\n✧ SEU CÓDIGO É: ${code} ✧\n`)))
+    } catch (err) {
+        console.log(chalk.red(`\n[❌] Erro ao solicitar código de pareamento (tentativa ${tentativa}/3): ${err?.message || err}`))
+        if (tentativa < 3) return solicitarCodigoPareamento(tentativa + 1)
+        c.pairingCodeRequested = false
+    }
+}
+
 let handler = await import('./handler.js')
 let isReconnecting = false
 let reconnectAttempts = 0
@@ -912,20 +939,9 @@ global.reloadHandler = async function (restatConn) {
     global.conn.connectionUpdate = async (update) => {
         const { connection, lastDisconnect, qr } = update
 
+        // Fallback: se o código ainda não foi pedido, pede agora
         if (usePairingCode && !global.conn.authState.creds.registered && (qr || connection === 'connecting')) {
-            if (phoneNumber && !global.conn.pairingCodeRequested) {
-                global.conn.pairingCodeRequested = true;
-                setTimeout(async () => {
-                    try {
-                        let code = await global.conn.requestPairingCode(phoneNumber);
-                        code = code?.match(/.{1,4}/g)?.join("-") || code;
-                        console.log(chalk.bold.white(chalk.bgMagenta(`\n✧ SEU CÓDIGO É: ${code} ✧\n`)));
-                    } catch (err) {
-                        console.log(chalk.red("\n[❌] Erro ao solicitar código de pareamento."));
-                        global.conn.pairingCodeRequested = false;
-                    }
-                }, 3000);
-            }
+            solicitarCodigoPareamento()
         }
 
         const sessaoOk = temSessaoValida(global.conn.authState?.creds)
@@ -964,6 +980,9 @@ global.reloadHandler = async function (restatConn) {
     global.conn.ev.on('connection.update', global.conn.connectionUpdate)
     global.conn.ev.on('creds.update', global.conn.credsUpdate)
     global.conn.ev.on('call', global.conn.callHandler)
+
+    // Se for reconexão (novo socket), garante o pedido do código também
+    if (restatConn) solicitarCodigoPareamento()
     return true
 };
 
@@ -1033,3 +1052,6 @@ watchFile(file, () => {
 
 await loadPlugins()
 await global.reloadHandler(false)
+
+// Pedido direto do código de pareamento (não depende de nenhum evento)
+await solicitarCodigoPareamento()
