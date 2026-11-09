@@ -1,0 +1,12 @@
+[
+  {
+    "noprefix": true,
+    "noprefix_list": [
+      {
+        "gatilho": "t",
+        "alvo": "take"
+      }
+    ],
+    "antidelete": true
+  }
+]

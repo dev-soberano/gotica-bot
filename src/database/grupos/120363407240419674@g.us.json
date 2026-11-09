@@ -1,0 +1,15 @@
+[
+  {
+    "antilinkgp": true,
+    "antipagamento": true,
+    "autolevelup": true,
+    "modoreal": true,
+    "real": true,
+    "antiflood": true,
+    "exit": {
+      "enabled": true
+    },
+    "bemvindo": true,
+    "antispam": true
+  }
+]

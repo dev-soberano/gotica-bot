@@ -1,0 +1,29 @@
+{
+  "ausentes": [],
+  "antilink": false,
+  "antiflood": false,
+  "floodLimite": 5,
+  "floodJanela": 4,
+  "antipagamento": false,
+  "antibot": false,
+  "antifake": false,
+  "antitrabas": false,
+  "antisticker": false,
+  "autosticker": false,
+  "autofigurinha": false,
+  "autofig": false,
+  "autofigu": false,
+  "antispam": false,
+  "antiver": true,
+  "antivisu": true,
+  "antidelete": false,
+  "antitoxic": false,
+  "anticall": false,
+  "noprefix": true,
+  "noprefix_list": [
+    {
+      "gatilho": "t",
+      "alvo": "take"
+    }
+  ]
+}

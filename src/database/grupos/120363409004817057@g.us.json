@@ -1,0 +1,13 @@
+[
+  {
+    "nsfw": false,
+    "autolevelup": true,
+    "modoreal": true,
+    "real": true,
+    "bemvindo": true,
+    "exit": {
+      "enabled": true
+    },
+    "ausentes": []
+  }
+]

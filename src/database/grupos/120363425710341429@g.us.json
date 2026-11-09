@@ -1,0 +1,10 @@
+[
+  {
+    "antiflood": true,
+    "bemvindo": true,
+    "exit": {
+      "enabled": true
+    },
+    "antispam": true
+  }
+]
